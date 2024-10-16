@@ -4,11 +4,32 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const cors = require('cors')
 
+// const usersRouter = require('./routes/users')
+// const orderRouter = require('./routes/order')
+const paymentRouter = require('./routes/payment')
+const bodyParser = require('body-parser')
+const app = express()
+
+app.use(cors())
+app.use(logger('dev'))
+// app.use(express.json())
+app.use(bodyParser.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf
+  }
+}))
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
+
+// routes
+// app.use('/users', usersRouter)
+// app.use('/order', orderRouter)
+
 // const { sendEmailNotification } = require('./util/email')
+const authRoutes = require('./routes/authRoutes.js')
 const usersRoutes = require('./routes/userRoutes')
 const productRoutes = require('./routes/productRoutes')
 const orderRoutes = require('./routes/orderManagementRoutes')
-const authRoutes = require('./routes/authRoutes.js')
 const { isAdmin, requireSignIn } = require('./middleware/authMiddleware')
 const errorHandler = require('./util/errorHandler')
 const productRouter = require('./routes/productRouter')
@@ -16,15 +37,8 @@ const cartRouter = require('./routes/cart')
 const orderRouter = require('./routes/order')
 const userRoutes = require('./routes/userRoutes.js')
 const upload = require('./multerConfig.js')
-
-const app = express()
-app.use(logger('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser())
-app.use(cors())
-
-app.use(express.json())
+const Product = require('./models/products')
+const { sequelize, Sequelize } = require('./models')
 
 // const productData = [
 //   {
@@ -97,11 +111,12 @@ app.use('/api/admin/users', requireSignIn, isAdmin, usersRoutes)
 app.use('/api/admin/products', requireSignIn, isAdmin, productRoutes)
 app.use('/api/admin/order', requireSignIn, isAdmin, orderRoutes)
 
-app.use('/cart', requireSignIn, cartRouter)
-app.use('/products', productRouter)
+app.use('/api/cart', requireSignIn, cartRouter)
+app.use('/api/products', productRouter)
 app.use('/api/orders', requireSignIn, orderRouter)
 app.use('/api/auth', upload.single('profilePicture'), authRoutes)
-app.use('/api/users', upload.single('profilePicture'), userRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/payment', paymentRouter)
 
 app.use(function (req, res, next) {
   next(createError(404))
@@ -112,6 +127,12 @@ app.use(errorHandler)
 
 // error handler
 app.use(function (err, req, res, next) {
-  return res.send(err)
+  const status = err.statusCode || 400
+  const message = err.message
+  const data = err.data
+  res.status(status).json({
+    message,
+    data
+  })
 })
 module.exports = app

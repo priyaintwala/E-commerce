@@ -49,15 +49,12 @@ function ProductList() {
 		setSearch(search)
 
 		getProducts({ page, rowsPerPage, search }).then(res => {
-			console.log(res, "dsjkjkjk")
 			if (res.status === 200) {
-				setProducts(res.data.products)
-				setTotalProduct(res.data.totalProduct)
+				setProducts(res.data.data.products)
+				setTotalProduct(res.data.data.totalProduct)
 			}
 		})
 	}, [searchParams]);
-
-console.log(products)
 
 	const handleChangePage = (
 		event: React.MouseEvent<HTMLButtonElement> | null,

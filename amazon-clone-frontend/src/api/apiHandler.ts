@@ -23,7 +23,7 @@ export function verifyToken(data: { token: string | null; }) {
 
 export function getProducts(data: AxiosRequestConfig<any> | undefined) {
   return axiosClient.get(
-    `products?page=${data.page + 1}&productsPerPage=${
+    `api/products?page=${data.page + 1}&productsPerPage=${
       data.rowsPerPage
     }&search=${data.search}`,
     data

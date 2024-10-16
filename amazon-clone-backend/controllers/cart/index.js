@@ -2,6 +2,8 @@ const Cart = require('../../models/cart')
 const CartItem = require('../../models/cartItem')
 const Product = require('../../models/products')
 const db = require('../../models/index')
+const { successResponse } = require('../../util/response')
+
 const addCart = async (req, res) => {
   const { quantity } = req.body
   const user = req.user
@@ -37,7 +39,7 @@ const addCart = async (req, res) => {
       total_price: product.price * quantity
     })
   }
-  res.status(200).json({ message: 'Item added to the cart successfully.' })
+  return res.status(200).send(successResponse('Item added to the cart successfully.', {}))
 }
 
 const removeCart = async (req, res) => {
@@ -63,7 +65,7 @@ const removeCart = async (req, res) => {
   await CartItem(db.sequelize, db.Sequelize.DataTypes).destroy({
     where: { CartId: cart.id, ProductId: product.id }
   })
-  res.status(200).json({ message: 'item removed from the cart successfully.' })
+  return res.status(200).send(successResponse('Item removed from the cart successfully.', {}))
 }
 
 const removeAllCart = async (req, res) => {
@@ -82,8 +84,7 @@ const removeAllCart = async (req, res) => {
   await Cart(db.sequelize, db.Sequelize.DataTypes).destroy({
     where: { id: cart.id }
   })
-
-  return res.status(200).json({ message: 'Cart emptied successfully' })
+  return res.status(200).send(successResponse('Cart emptied successfully', {}))
 }
 
 const updateCart = async (req, res) => {
@@ -118,9 +119,7 @@ const updateCart = async (req, res) => {
     { quantity, total_price: product.price * quantity },
     { where: { CartId: cart.id, ProductId: product.id } }
   )
-  res
-    .status(200)
-    .json({ message: 'item quantity updated in the cart successfully' })
+  return res.status(200).send(successResponse('Item quantity updated in the cart successfully', {}))
 }
 
 const getCart = async (req, res) => {
@@ -130,9 +129,11 @@ const getCart = async (req, res) => {
   })
 
   if (!cart) {
-    const error = new Error('Cart not found')
-    error.statusCode = 400
-    throw error
+    return res.status(200).send(successResponse('Cart is Empty', {
+      cart_items: [],
+      total_price: 0,
+      total_quantity: 0
+    }))
   }
 
   const cartItems = await CartItem(
@@ -160,17 +161,16 @@ const getCart = async (req, res) => {
     cartItemDetails.push({
       product_id: product.id,
       product_name: product.name,
+      product_image: product.image,
       quantity: cartItem.quantity,
       price_per_unit: product.price
     })
   }
-
-  res.json({
-    message: 'Cart contents retrieved successfully.',
+  return res.status(200).send(successResponse('Cart contents retrieved successfully.', {
     cart_items: cartItemDetails,
     total_price: totalAmount,
     total_quantity: totalQuantity
-  })
+  }))
 }
 
 const checkout = async (req, res) => {

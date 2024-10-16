@@ -2,7 +2,10 @@ const express = require('express')
 const {
   registerController,
   loginController,
-  verifyTokenController
+  verifyTokenController,
+  forgotPasswordController,
+  resetPasswordController,
+  verifyToken
 } = require('../controllers/user/index')
 const router = express.Router()
 const asyncRouteHandler = require('../util/asyncRouteHandler')
@@ -22,5 +25,11 @@ router.post('/register', [
 router.post('/login', asyncRouteHandler(loginController))
 // verification_token
 router.get('/verify/:verificationToken', asyncRouteHandler(verifyTokenController))
+
+router.post('/forgotPassword', asyncRouteHandler(forgotPasswordController))
+
+router.post('/resetPassword', asyncRouteHandler(resetPasswordController))
+
+router.post('/verifyToken', asyncRouteHandler(verifyToken))
 
 module.exports = router

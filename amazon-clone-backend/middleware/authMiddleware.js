@@ -2,9 +2,11 @@ const JWT = require('jsonwebtoken')
 const { JWT_SECRET } = process.env
 const userModel = require('../models/user')
 const db = require('../models/index')
+const { errorResponse } = require('../util/response')
 
 // Protected  routes
 exports.requireSignIn = async (req, res, next) => {
+  console.log(req.headers.authorization)
   try {
     const decode = JWT.verify(
       req.headers.authorization,
@@ -13,7 +15,7 @@ exports.requireSignIn = async (req, res, next) => {
     req.user = decode
     next()
   } catch (error) {
-    console.log(error)
+    return res.status(401).send(errorResponse('You need to be logged in to add products to your cart.', ''))
   }
 }
 

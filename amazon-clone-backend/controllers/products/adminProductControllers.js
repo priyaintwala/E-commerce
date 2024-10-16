@@ -4,9 +4,9 @@ const Adminlog = require('../../models/adminAuditLog')
 const path = require('path')
 
 exports.addProduct = async (req, res) => {
-  const productImage = req.file
-    ? path.join(__dirname, '../public/uploads/', req.file.filename)
-    : null
+  // const productImage = req.file
+  //   ? path.join(__dirname, '../public/uploads/', req.file.filename)
+  //   : null
   const { name, description, price, stock, ratings } = req.body
   const newProduct = await Product(db.sequelize, db.Sequelize.DataTypes).create(
     {
@@ -14,15 +14,15 @@ exports.addProduct = async (req, res) => {
       description,
       price,
       stock,
-      ratings,
-      image: productImage
+      ratings
+      // image: productImage
     }
   )
   if (newProduct) {
-    await Adminlog(db.sequelize, db.Sequelize.DataTypes).create({
-      admin_id: req.user.id,
-      action_description: 'New Product Added'
-    })
+    // await Adminlog(db.sequelize, db.Sequelize.DataTypes).create({
+    //   admin_id: req.user.id,
+    //   action_description: 'New Product Added'
+    // })
     res
       .status(201)
       .json({ message: 'Product Added Successfully', new_product: newProduct })

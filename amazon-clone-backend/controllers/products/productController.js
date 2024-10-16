@@ -1,14 +1,25 @@
+const { Op } = require('sequelize')
 const Product = require('../../models/products')
 const { sequelize, Sequelize } = require('../../models/index')
 const Adminlog = require('../../models/adminAuditLog')
 const db = require('../../models/index')
+const { successResponse, errorResponse } = require('../../util/response')
 
 exports.getAllProducts = async (req, res, next) => {
   const page = parseInt(req.query.page) || 1
   const productsPerPage = parseInt(req.query.productsPerPage) || 10
   const offset = (page - 1) * productsPerPage
+  const search = req.query.search
+  let totalProduct
   try {
+    totalProduct = await Product(sequelize, Sequelize.DataTypes).count()
+    if (search) {
+      totalProduct = await Product(sequelize, Sequelize.DataTypes).count({
+        where: { name: { [Op.like]: `%${search}%` } } })
+    }
+
     Product(sequelize, Sequelize.DataTypes).findAll({
+      where: { name: { [Op.like]: `%${search}%` } },
       offset,
       limit: productsPerPage
     })
@@ -17,7 +28,8 @@ exports.getAllProducts = async (req, res, next) => {
         //   admin_id: req.user.id,
         //   action_description: 'Fetched All Products'
         // })
-        res.json({ products, page, productsPerPage })
+        // res.send({ products, page, productsPerPage })
+        res.send(successResponse('success', { products, page, productsPerPage, totalProduct }))
       })
       .catch((error) => {
         console.error('Error fetching products:', error)
@@ -36,10 +48,10 @@ exports.getProductById = async (req, res) => {
     const product = await Product(sequelize, Sequelize.DataTypes).findByPk(productId)
 
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' })
+      return res.status(404).send(errorResponse('Product not found.', ''))
     }
 
-    res.status(200).json(product)
+    return res.status(200).send(successResponse('success', { product }))
   } catch (error) {
     console.error('Error fetching product by ID:', error)
     res.status(500).json({ error: 'An error occurred while fetching the product.' })
@@ -78,9 +90,9 @@ exports.searchProducts = async (req, res, next) => {
 
 exports.addProduct = async (req, res) => {
   try {
-    const [{ name, description, price, stock, ratings, image }] = req.body
+    const { name, description, price, stock, ratings, image } = req.body
     console.log(name, description, price, stock, ratings, image)
-    const newProduct = await Product(sequelize, Sequelize.DataTypes).bulkCreate({
+    const newProduct = await Product(sequelize, Sequelize.DataTypes).create({
       name,
       description,
       price,

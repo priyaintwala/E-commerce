@@ -23,7 +23,6 @@ function Product(){
   useEffect(() => {
     getSingleProduct({ id }).then(res => {
       if (res.data.status) {
-        console.log("res", res)
         setProduct(res.data.data.product)
         setImage(res.data.data.product.image.replace(extra, '').split(',')[0])
       } else {

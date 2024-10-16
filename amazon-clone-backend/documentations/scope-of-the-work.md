@@ -2,14 +2,13 @@
 
 ## Project Overview
 
-The e-commerce platform project aims to create a comprehensive online marketplace where users can browse, search, and purchase products from constious categories. The application will consist of several modules, each with specific functionality.
+The e-commerce platform project aims to create a comprehensive online marketplace where users can browse, search, and purchase products from various categories. The application will consist of several modules, each with specific functionality.
 
 ## Modules
 
 ### 1. User Authentication Module
 
 **Technical Tasks:**
-
 - Implement user registration with email verification.
 - Create a login system with secure password hashing.
 - Implement user profile management (update profile picture, change password, etc.).
@@ -20,7 +19,6 @@ This module is responsible for user registration, login, and profile management.
 ### 2. Product Catalog Module
 
 **Technical Tasks:**
-
 - Create a database schema for storing product information (name, description, price, etc.).
 - Implement product listing, search, and filtering functionalities.
 - Develop product detail pages with images and descriptions.
@@ -31,7 +29,6 @@ This module handles the management of products available for sale. Users can bro
 ### 3. Shopping Cart Module
 
 **Technical Tasks:**
-
 - Design and implement a shopping cart system.
 - Allow users to add, remove, or update the quantity of items in the cart.
 - Calculate the total price of items in the cart.
@@ -42,7 +39,6 @@ Users can add products to their cart while browsing. This module keeps track of 
 ### 4. Order Management Module
 
 **Technical Tasks:**
-
 - Create a database schema for storing order details.
 - Implement the process of placing an order.
 - Provide order history and tracking functionality.
@@ -53,18 +49,16 @@ This module handles the order creation process. Users can place orders, view the
 ### 5. Payment Gateway Integration Module
 
 **Technical Tasks:**
-
 - Integrate a third-party payment gateway (e.g., PayPal, Stripe).
 - Implement secure payment processing.
 - Handle payment confirmation and order fulfillment.
 
 **Description:**
-Integrates a payment gateway to facilitate secure online payments. Users can make payments for their orders using constious payment methods.
+Integrates a payment gateway to facilitate secure online payments. Users can make payments for their orders using various payment methods.
 
 ### 6. Admin Dashboard Module
 
 **Technical Tasks:**
-
 - Create an admin dashboard for managing products, orders, and user accounts.
 - Implement role-based access control for admin and regular users.
 
@@ -74,7 +68,6 @@ Admins can manage the product catalog, view and manage orders, and perform user 
 ### 7. Email Notifications Module
 
 **Technical Tasks:**
-
 - Implement email notifications for order confirmation, shipping updates, and password reset.
 - Integrate an email service provider (e.g., SendGrid).
 
@@ -91,7 +84,6 @@ Sends automated email notifications to users for important events such as order 
 - Email Service: Integration with an email service provider
 
 ## Project Goals
-
 - Develop a functional e-commerce application.
 - Practice building user authentication, CRUD operations, and integration with third-party services.
 - Implement a responsive and user-friendly UI.
@@ -99,7 +91,6 @@ Sends automated email notifications to users for important events such as order 
 - Gain experience in working with real-world APIs (e.g., payment gateway, email service).
 
 ## Project Deliverables
-
 - A fully functional e-commerce website.
 - Source code hosted on a version control system (e.g., GitHub).
 - Documentation on how to set up and run the project.

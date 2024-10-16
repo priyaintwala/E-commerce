@@ -6,6 +6,7 @@ const OrderItem = require('../../models/orderItem')
 const User = require('../../models/user')
 const CartItem = require('../../models/cartItem')
 const Adminlog = require('../../models/adminAuditLog.js')
+const { successResponse } = require('../../util/response')
 
 exports.placeOrder = async (req, res) => {
   const user = req.user
@@ -75,8 +76,6 @@ exports.placeOrder = async (req, res) => {
 
     let totalPrice = 0
 
-    console.log(cartItems)
-
     for (const item of cartItems) {
       const product = await Product(
         db.sequelize,
@@ -121,15 +120,19 @@ exports.placeOrder = async (req, res) => {
       }
     }
 
-    if (existingUser.role === 'ADMIN') {
-      await Adminlog(db.sequelize, db.Sequelize.DataTypes).create({
-        admin_id: req.user.id,
-        action_description: 'New Order created'
-      })
-    }
-    res
-      .status(201)
-      .json({ Message: 'Order placed successfully.', OrderDetails: order })
+    await CartItem(db.sequelize,
+      db.Sequelize.DataTypes).destroy({
+      where: { CartId: cart.id }
+    })
+
+    // if (existingUser.role === 'ADMIN') {
+    //   await Adminlog(db.sequelize, db.Sequelize.DataTypes).create({
+    //     admin_id: req.user.id,
+    //     action_description: 'New Order created'
+    //   })
+    // }
+
+    res.status(201).send(successResponse('Order placed successfully.', order))
   } catch (error) {
     console.error(error)
     res.status(400).json({ error: 'Invalid Inputs or Products Not Found' })
@@ -141,18 +144,67 @@ exports.getOrders = async (req, res) => {
     const user = req.user
 
     const orders = await Order(db.sequelize, db.Sequelize.DataTypes).findAll({
-      where: { UserId: user.id },
-      attributes: ['id', 'order_date', 'status', 'total_price']
+      where: { UserId: user.id }
     })
 
-    if (orders.length === 0) {
-      return res.status(404).json({ error: 'User has no order history' })
+    if (!orders || orders.length === 0) {
+      return res.status(400).send({
+        status: 400,
+        success: false,
+        message: 'Order does not exist'
+      })
     }
 
-    res.status(200).json({ orders })
-  } catch (error) {
-    console.error(error)
-    res.status(404).json({ error: 'User Not Found or No Order History' })
+    const formattedOrders = []
+
+    for (const order of orders) {
+      const orderItems = await OrderItem(db.sequelize, db.Sequelize.DataTypes).findAll({
+        where: { OrderId: order.id }
+      })
+
+      if (!orderItems || orderItems.length === 0) {
+        return res.status(404).send({
+          status: 404,
+          success: false,
+          message: 'No order items found'
+        })
+      }
+
+      const products = []
+      let totalPrice = 0
+
+      for (const orderItem of orderItems) {
+        const product = await Product(db.sequelize, db.Sequelize.DataTypes).findOne({
+          where: { id: orderItem.ProductId }
+        })
+
+        const itemTotalPrice = product.price * orderItem.quantity;
+        totalPrice += itemTotalPrice;
+
+        products.push({
+          id: product.id,
+          name: product.name,
+          image: product.image,
+          description: product.description,
+          price: product.price,
+          quantity: orderItem.quantity
+        })
+      }
+
+      formattedOrders.push({
+        order_id: order.id,
+        order_date:order.order_date,
+        total_price:totalPrice,
+        status:order.status,
+        products
+      })
+    }
+
+    return res.status(200).send(successResponse('Order fetched successfully.', { OrderDetails: formattedOrders }))
+    // res.status(201).json({ Message: 'Order fetched successfully.', OrderDetails: formattedOrders })
+  } catch (err) {
+    console.error(err)
+    res.status(400).json({ error: 'Invalid Inputs or Products Not Found' })
   }
 }
 
@@ -179,5 +231,3 @@ exports.trackOrder = async (req, res) => {
     res.status(404).json({ error: 'Order Not Found' })
   }
 }
-
-// WRITE A FUNCTION TO MANAGE STOCK ONCE THE PAYMENT IS SUCCESSFUL

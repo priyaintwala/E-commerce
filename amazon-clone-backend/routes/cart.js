@@ -21,7 +21,7 @@ const router = express.Router()
 */
 router.get('/', asyncRouteHandler(getCart))
 router.post('/add', authenticateProduct, asyncRouteHandler(addCart))
-router.delete('/remove', authenticateProduct, asyncRouteHandler(removeCart))
+router.post('/remove', authenticateProduct, asyncRouteHandler(removeCart))
 router.delete('/removeAll', asyncRouteHandler(removeAllCart))
 router.patch('/update', authenticateProduct, asyncRouteHandler(updateCart))
 router.post('/checkout', asyncRouteHandler(checkout))
